@@ -1,5 +1,5 @@
 {
-  "name": "rlm-js",
+  "name": "@NekoMonci12/rlm-js",
   "version": "1.0.0",
   "description": "Recursive problem decomposition for small LLMs, break hard questions into sub-problems, solve each independently, synthesize back up the tree.",
   "main": "./dist/index.js",
