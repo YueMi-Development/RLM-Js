@@ -12,6 +12,14 @@
     "type": "git",
     "url": "git+https://github.com/YueMi-Development/RLM-Js.git"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "author": "YueMi-Development",
   "license": "MIT",
   "dependencies": {
