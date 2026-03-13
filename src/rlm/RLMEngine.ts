@@ -6,6 +6,7 @@ export class RLMEngine {
   private llm: LLMService
   private config: RLMConfig
   private currentTotalTokens: number = 0
+  private providerIndex: number = 0
 
   constructor(llm: LLMService, config: RLMConfig) {
     this.llm = llm
@@ -77,7 +78,7 @@ Respond with valid JSON:
     const response = await this.callLLM(
       [{ role: 'user', content: prompt }],
       { 
-        providerId: this.config.decompositionProviderId || this.config.defaultProviderId,
+        providerId: this.getNextProviderId(this.config.decompositionProviderId || this.config.defaultProviderId),
         label: 'decomposition'
       }
     )
@@ -100,7 +101,7 @@ Respond with valid JSON:
     const response = await this.callLLM(
       [{ role: 'user', content: node.question }],
       { 
-        providerId: this.config.defaultProviderId,
+        providerId: this.getNextProviderId(this.config.defaultProviderId),
         label: 'solving'
       }
     )
@@ -125,7 +126,7 @@ Based on the above information, provide a comprehensive and coherent answer to t
     const response = await this.callLLM(
       [{ role: 'user', content: prompt }],
       { 
-        providerId: this.config.synthesisProviderId || this.config.defaultProviderId,
+        providerId: this.getNextProviderId(this.config.synthesisProviderId || this.config.defaultProviderId),
         label: 'synthesis'
       }
     )
@@ -163,5 +164,20 @@ Based on the above information, provide a comprehensive and coherent answer to t
       this.currentTotalTokens += response.usage.totalTokens
     }
     return response
+  }
+
+  private getNextProviderId(preferredId?: string): string {
+    if (this.config.strategy !== 'round-robin') {
+      return preferredId || this.config.defaultProviderId || 'unknown'
+    }
+
+    const pool = this.config.providerPool || this.llm.getRegisteredProviderIds()
+    if (pool.length === 0) {
+      return preferredId || this.config.defaultProviderId || 'unknown'
+    }
+
+    const id = pool[this.providerIndex % pool.length]
+    this.providerIndex++
+    return id
   }
 }

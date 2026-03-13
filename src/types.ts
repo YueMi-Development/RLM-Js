@@ -49,6 +49,8 @@ export type RLMConfig = {
   decompositionProviderId?: string
   synthesisProviderId?: string
   maxTokens?: number
+  strategy?: 'fixed' | 'round-robin'
+  providerPool?: string[]
 }
 
 export type DecompositionResult = {
