@@ -2,9 +2,11 @@
   "name": "rlm-js",
   "version": "1.0.0",
   "description": "Recursive problem decomposition for small LLMs, break hard questions into sub-problems, solve each independently, synthesize back up the tree.",
-  "main": "index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "start": "node index.js"
+    "build": "rimraf dist && tsc",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -12,8 +14,17 @@
   },
   "author": "NekoMonci12",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/NekoMonci12/RLM-Js/issues"
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@openrouter/sdk": "^0.9.11",
+    "openai": "^6.27.0",
+    "uuid": "^13.0.0"
   },
-  "homepage": "https://github.com/NekoMonci12/RLM-Js#readme"
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/uuid": "^10.0.0",
+    "dotenv": "^17.3.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.9.3"
+  }
 }

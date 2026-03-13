@@ -1,0 +1,43 @@
+name: Publish to GitHub Packages
+
+on:
+  push:
+    branches:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build the project
+        run: npm run build
+
+      - name: Publish to Forgejo Packages
+        run: |
+          echo "@yuemi-development:registry=https://git.yuemi.my.id/api/packages/YueMi-Development/npm/" > .npmrc
+          echo "//git.yuemi.my.id/api/packages/YueMi-Development/npm/:_authToken=${{ secrets.FORGEJO_TOKEN }}" >> .npmrc
+          npm publish
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          # Use the branch name as the tag (e.g. refs/heads/v1.0.0 -> v1.0.0)
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
