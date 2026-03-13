@@ -19,7 +19,7 @@ export class OpenRouterProvider implements LLMProvider {
       chatGenerationParams: {
         model: options?.model || this.defaultModel,
         messages: messages as any,
-        temperature: options?.temperature ?? 0.7,
+        temperature: options?.temperature,
         maxTokens: options?.maxTokens ?? undefined,
         stream: false,
       },

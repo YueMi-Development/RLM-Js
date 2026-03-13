@@ -15,8 +15,8 @@ export class OpenAIProvider implements LLMProvider {
     const response = await this.client.chat.completions.create({
       model: options?.model || this.defaultModel,
       messages: messages as any,
-      temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.maxTokens ?? null,
+      temperature: options?.temperature,
+      max_tokens: options?.maxTokens,
     })
 
     const result: LLMResponse = {
