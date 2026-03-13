@@ -35,6 +35,11 @@ export type RLMQuestionNode = {
   children: RLMQuestionNode[]
   depth: number
   status: RLMEngineStatus
+  usage?: {
+    promptTokens: number
+    completionTokens: number
+    totalTokens: number
+  }
 }
 
 export type RLMConfig = {

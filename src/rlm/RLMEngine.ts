@@ -33,7 +33,7 @@ export class RLMEngine {
     }
 
     node.status = 'decomposing'
-    const decomposition = await this.checkAndDecompose(node.question)
+    const decomposition = await this.checkAndDecompose(node)
 
     if (!decomposition.isComplex || !decomposition.subQuestions || decomposition.subQuestions.length === 0) {
       return this.solveDirectly(node)
@@ -54,14 +54,14 @@ export class RLMEngine {
 
     // Synthesize final answer
     node.status = 'synthesizing'
-    node.answer = await this.synthesize(node.question, node.children)
+    node.answer = await this.synthesize(node)
     node.status = 'completed'
   }
 
-  private async checkAndDecompose(question: string): Promise<DecompositionResult> {
+  private async checkAndDecompose(node: RLMQuestionNode): Promise<DecompositionResult> {
     const prompt = `
 You are a task decomposition assistant. 
-Analyze the following question: "${question}"
+Analyze the following question: "${node.question}"
 
 Decide if it is complex and needs to be broken down into smaller, independent sub-questions.
 If it is complex, provide a list of sub-questions.
@@ -79,6 +79,9 @@ Respond with valid JSON:
         label: 'decomposition'
       }
     )
+    
+    // Store usage
+    node.usage = response.usage
 
     try {
       // Find JSON block if it exists
@@ -100,16 +103,17 @@ Respond with valid JSON:
       }
     )
     node.answer = response.content
+    node.usage = response.usage // Store usage for leaf nodes
     node.status = 'completed'
   }
 
-  private async synthesize(question: string, children: RLMQuestionNode[]): Promise<string> {
-    const subAnswers = children
+  private async synthesize(node: RLMQuestionNode): Promise<string> {
+    const subAnswers = node.children
       .map((c) => `Sub-question: ${c.question}\nAnswer: ${c.answer}`)
       .join('\n\n---\n\n')
 
     const prompt = `
-Original Question: "${question}"
+Original Question: "${node.question}"
 
 We have broken this down into sub-questions and solved them:
 ${subAnswers}
@@ -123,6 +127,23 @@ Based on the above information, provide a comprehensive and coherent answer to t
         label: 'synthesis'
       }
     )
+
+    // Aggregate usage: self + all children + decomposition
+    const totalUsage = {
+      promptTokens: (node.usage?.promptTokens || 0) + (response.usage?.promptTokens || 0),
+      completionTokens: (node.usage?.completionTokens || 0) + (response.usage?.completionTokens || 0),
+      totalTokens: (node.usage?.totalTokens || 0) + (response.usage?.totalTokens || 0),
+    }
+
+    node.children.forEach((child) => {
+      if (child.usage) {
+        totalUsage.promptTokens += child.usage.promptTokens
+        totalUsage.completionTokens += child.usage.completionTokens
+        totalUsage.totalTokens += child.usage.totalTokens
+      }
+    })
+
+    node.usage = totalUsage
 
     return response.content
   }
