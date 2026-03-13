@@ -160,12 +160,17 @@ Based on the above information, provide a comprehensive and coherent answer to t
   private async callLLM(messages: any[], options: any) {
     this.checkTokenLimit()
     
+    // Prepend system prompt if configured
+    const finalMessages = this.config.systemPrompt 
+      ? [{ role: 'system', content: this.config.systemPrompt }, ...messages]
+      : messages
+
     const maxRetries = this.config.maxRetries ?? 3
     let lastError: Error | null = null
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
-        const response = await this.llm.completion(messages, options)
+        const response = await this.llm.completion(finalMessages, options)
         if (response.usage) {
           this.currentTotalTokens += response.usage.totalTokens
         }
