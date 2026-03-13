@@ -51,6 +51,7 @@ export type RLMConfig = {
   maxTokens?: number
   strategy?: 'fixed' | 'round-robin'
   providerPool?: string[]
+  maxRetries?: number
 }
 
 export type DecompositionResult = {

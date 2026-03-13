@@ -159,25 +159,46 @@ Based on the above information, provide a comprehensive and coherent answer to t
 
   private async callLLM(messages: any[], options: any) {
     this.checkTokenLimit()
-    const response = await this.llm.completion(messages, options)
-    if (response.usage) {
-      this.currentTotalTokens += response.usage.totalTokens
+    
+    const maxRetries = this.config.maxRetries ?? 3
+    let lastError: Error | null = null
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await this.llm.completion(messages, options)
+        if (response.usage) {
+          this.currentTotalTokens += response.usage.totalTokens
+        }
+        return response
+      } catch (error) {
+        lastError = error as Error
+        console.warn(`[RLM] Provider "${options.providerId}" failed (attempt ${attempt + 1}/${maxRetries + 1}): ${lastError.message}`)
+        
+        if (attempt < maxRetries) {
+          // Rotate to next provider for retry
+          options.providerId = this.getNextProviderId()
+          console.warn(`[RLM] Retrying with provider "${options.providerId}"...`)
+        }
+      }
     }
-    return response
+
+    throw new Error(`LLM call failed after ${maxRetries + 1} attempts. Last error: ${lastError?.message}`)
   }
 
   private getNextProviderId(preferredId?: string): string {
-    if (this.config.strategy !== 'round-robin') {
-      return preferredId || this.config.defaultProviderId || 'unknown'
+    const allProviders = this.llm.getRegisteredProviderIds()
+    if (allProviders.length === 0) return 'unknown'
+
+    const defaultProviderId = this.config.defaultProviderId || allProviders[0]
+
+    // If strategy is round-robin OR if we are doing a forced rotation (no preferredId)
+    if (this.config.strategy === 'round-robin' || !preferredId) {
+      const pool = this.config.providerPool || allProviders
+      const id = pool[this.providerIndex % pool.length]
+      this.providerIndex++
+      return id
     }
 
-    const pool = this.config.providerPool || this.llm.getRegisteredProviderIds()
-    if (pool.length === 0) {
-      return preferredId || this.config.defaultProviderId || 'unknown'
-    }
-
-    const id = pool[this.providerIndex % pool.length]
-    this.providerIndex++
-    return id
+    return preferredId || defaultProviderId
   }
 }

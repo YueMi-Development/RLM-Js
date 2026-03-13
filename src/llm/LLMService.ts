@@ -8,7 +8,7 @@ import type {
 
 export class LLMService {
   private providers: Map<string, LLMCompletionFn> = new Map()
-  private defaultProviderId?: string
+  public defaultProviderId?: string
 
   /**
    * Register a provider (either a class instance or a function)
