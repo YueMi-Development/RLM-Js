@@ -74,7 +74,10 @@ Respond with valid JSON:
 `
     const response = await this.llm.completion(
       [{ role: 'user', content: prompt }],
-      { providerId: this.config.decompositionProviderId || this.config.defaultProviderId }
+      { 
+        providerId: this.config.decompositionProviderId || this.config.defaultProviderId,
+        label: 'decomposition'
+      }
     )
 
     try {
@@ -91,7 +94,10 @@ Respond with valid JSON:
     node.status = 'solving'
     const response = await this.llm.completion(
       [{ role: 'user', content: node.question }],
-      { providerId: this.config.defaultProviderId }
+      { 
+        providerId: this.config.defaultProviderId,
+        label: 'solving'
+      }
     )
     node.answer = response.content
     node.status = 'completed'
@@ -112,7 +118,10 @@ Based on the above information, provide a comprehensive and coherent answer to t
 `
     const response = await this.llm.completion(
       [{ role: 'user', content: prompt }],
-      { providerId: this.config.synthesisProviderId || this.config.defaultProviderId }
+      { 
+        providerId: this.config.synthesisProviderId || this.config.defaultProviderId,
+        label: 'synthesis'
+      }
     )
 
     return response.content
