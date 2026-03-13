@@ -48,6 +48,7 @@ export type RLMConfig = {
   defaultProviderId?: string
   decompositionProviderId?: string
   synthesisProviderId?: string
+  maxTokens?: number
 }
 
 export type DecompositionResult = {

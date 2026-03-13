@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid'
 export class RLMEngine {
   private llm: LLMService
   private config: RLMConfig
+  private currentTotalTokens: number = 0
 
   constructor(llm: LLMService, config: RLMConfig) {
     this.llm = llm
@@ -15,6 +16,7 @@ export class RLMEngine {
    * Main entry point to solve a question
    */
   async solve(question: string): Promise<RLMQuestionNode> {
+    this.currentTotalTokens = 0
     const root: RLMQuestionNode = {
       id: uuidv4(),
       question,
@@ -72,7 +74,7 @@ Respond with valid JSON:
   "subQuestions": string[] | null
 }
 `
-    const response = await this.llm.completion(
+    const response = await this.callLLM(
       [{ role: 'user', content: prompt }],
       { 
         providerId: this.config.decompositionProviderId || this.config.defaultProviderId,
@@ -95,7 +97,7 @@ Respond with valid JSON:
 
   private async solveDirectly(node: RLMQuestionNode): Promise<void> {
     node.status = 'solving'
-    const response = await this.llm.completion(
+    const response = await this.callLLM(
       [{ role: 'user', content: node.question }],
       { 
         providerId: this.config.defaultProviderId,
@@ -120,7 +122,7 @@ ${subAnswers}
 
 Based on the above information, provide a comprehensive and coherent answer to the original question.
 `
-    const response = await this.llm.completion(
+    const response = await this.callLLM(
       [{ role: 'user', content: prompt }],
       { 
         providerId: this.config.synthesisProviderId || this.config.defaultProviderId,
@@ -146,5 +148,20 @@ Based on the above information, provide a comprehensive and coherent answer to t
     node.usage = totalUsage
 
     return response.content
+  }
+
+  private checkTokenLimit() {
+    if (this.config.maxTokens && this.currentTotalTokens > this.config.maxTokens) {
+      throw new Error(`Token limit exceeded: ${this.currentTotalTokens} > ${this.config.maxTokens}`)
+    }
+  }
+
+  private async callLLM(messages: any[], options: any) {
+    this.checkTokenLimit()
+    const response = await this.llm.completion(messages, options)
+    if (response.usage) {
+      this.currentTotalTokens += response.usage.totalTokens
+    }
+    return response
   }
 }
