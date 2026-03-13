@@ -1,0 +1,19 @@
+{
+  "name": "rlm-js",
+  "version": "1.0.0",
+  "description": "Recursive problem decomposition for small LLMs, break hard questions into sub-problems, solve each independently, synthesize back up the tree.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NekoMonci12/RLM-Js.git"
+  },
+  "author": "NekoMonci12",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NekoMonci12/RLM-Js/issues"
+  },
+  "homepage": "https://github.com/NekoMonci12/RLM-Js#readme"
+}
