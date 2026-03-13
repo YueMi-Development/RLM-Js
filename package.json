@@ -1,6 +1,6 @@
 {
   "name": "@yuemi-development/rlm-js",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Recursive problem decomposition for small LLMs, break hard questions into sub-problems, solve each independently, synthesize back up the tree.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
