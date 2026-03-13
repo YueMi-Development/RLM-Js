@@ -29,7 +29,7 @@ jobs:
 
       - name: Publish to GitHub Packages
         run: |
-          echo "@NekoMonci12:registry=https://npm.pkg.github.com" > .npmrc
+          echo "@YueMi-Development:registry=https://npm.pkg.github.com" > .npmrc
           echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> .npmrc
           npm publish
         env:
@@ -37,7 +37,7 @@ jobs:
 
       - name: Publish to Forgejo Packages
         run: |
-          echo "@NekoMonci12:registry=https://git.yuemi.my.id/api/packages/YueMi-Development/npm/" > .npmrc
+          echo "@YueMi-Development:registry=https://git.yuemi.my.id/api/packages/YueMi-Development/npm/" > .npmrc
           echo "//git.yuemi.my.id/api/packages/YueMi-Development/npm/:_authToken=${{ secrets.FORGEJO_TOKEN }}" >> .npmrc
           npm publish
 

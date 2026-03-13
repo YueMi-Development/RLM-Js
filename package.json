@@ -1,5 +1,5 @@
 {
-  "name": "@NekoMonci12/rlm-js",
+  "name": "@yuemi-development/rlm-js",
   "version": "1.0.0",
   "description": "Recursive problem decomposition for small LLMs, break hard questions into sub-problems, solve each independently, synthesize back up the tree.",
   "main": "./dist/index.js",
@@ -10,9 +10,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/NekoMonci12/RLM-Js.git"
+    "url": "git+https://github.com/YueMi-Development/RLM-Js.git"
   },
-  "author": "NekoMonci12",
+  "author": "YueMi-Development",
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
